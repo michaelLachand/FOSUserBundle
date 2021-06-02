@@ -12,9 +12,8 @@
 namespace FOS\UserBundle\Doctrine;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
+use Doctrine\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManager;
 use FOS\UserBundle\Model\UserInterface;
 use FOS\UserBundle\Util\CanonicalFieldsUpdater;
@@ -33,7 +32,7 @@ class UserListener implements EventSubscriber
 
     public function __construct(PasswordUpdaterInterface $passwordUpdater, CanonicalFieldsUpdater $canonicalFieldsUpdater)
     {
-        $this->passwordUpdater = $passwordUpdater;
+        $this->passwordUpdater        = $passwordUpdater;
         $this->canonicalFieldsUpdater = $canonicalFieldsUpdater;
     }
 
@@ -91,10 +90,6 @@ class UserListener implements EventSubscriber
             $om->getUnitOfWork()->recomputeSingleEntityChangeSet($meta, $user);
 
             return;
-        }
-
-        if ($om instanceof DocumentManager) {
-            $om->getUnitOfWork()->recomputeSingleDocumentChangeSet($meta, $user);
         }
     }
 }

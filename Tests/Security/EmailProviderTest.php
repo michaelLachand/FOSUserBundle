@@ -22,7 +22,7 @@ class EmailProviderTest extends TestCase
     private $userManager;
 
     /**
-     * @var UserProvider
+     * @var EmailProvider
      */
     private $userProvider;
 
