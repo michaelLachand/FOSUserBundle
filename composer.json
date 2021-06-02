@@ -1,7 +1,7 @@
 {
-  "name": "friendsofsymfony/user-bundle",
+  "name": "creatissimo/user-bundle",
   "type": "symfony-bundle",
-  "description": "Symfony FOSUserBundle",
+  "description": "Fork of Symfony FOSUserBundle",
   "keywords": [
     "User management"
   ],
