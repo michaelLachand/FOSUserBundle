@@ -43,8 +43,8 @@ class GroupController extends AbstractController
     public function __construct(EventDispatcherInterface $eventDispatcher, FactoryInterface $formFactory, GroupManagerInterface $groupManager)
     {
         $this->eventDispatcher = $eventDispatcher;
-        $this->formFactory = $formFactory;
-        $this->groupManager = $groupManager;
+        $this->formFactory     = $formFactory;
+        $this->groupManager    = $groupManager;
     }
 
     /**
@@ -83,7 +83,7 @@ class GroupController extends AbstractController
         $group = $this->findGroupBy('name', $groupName);
 
         $event = new GetResponseGroupEvent($group, $request);
-        $this->eventDispatcher->dispatch(FOSUserEvents::GROUP_EDIT_INITIALIZE, $event);
+        $this->eventDispatcher->dispatch($event, FOSUserEvents::GROUP_EDIT_INITIALIZE);
 
         if (null !== $event->getResponse()) {
             return $event->getResponse();
@@ -96,22 +96,22 @@ class GroupController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $event = new FormEvent($form, $request);
-            $this->eventDispatcher->dispatch(FOSUserEvents::GROUP_EDIT_SUCCESS, $event);
+            $this->eventDispatcher->dispatch($event, FOSUserEvents::GROUP_EDIT_SUCCESS);
 
             $this->groupManager->updateGroup($group);
 
             if (null === $response = $event->getResponse()) {
-                $url = $this->generateUrl('fos_user_group_show', ['groupName' => $group->getName()]);
+                $url      = $this->generateUrl('fos_user_group_show', ['groupName' => $group->getName()]);
                 $response = new RedirectResponse($url);
             }
 
-            $this->eventDispatcher->dispatch(FOSUserEvents::GROUP_EDIT_COMPLETED, new FilterGroupResponseEvent($group, $request, $response));
+            $this->eventDispatcher->dispatch(new FilterGroupResponseEvent($group, $request, $response), FOSUserEvents::GROUP_EDIT_COMPLETED);
 
             return $response;
         }
 
         return $this->render('@FOSUser/Group/edit.html.twig', [
-            'form' => $form->createView(),
+            'form'       => $form->createView(),
             'group_name' => $group->getName(),
         ]);
     }
@@ -125,7 +125,7 @@ class GroupController extends AbstractController
     {
         $group = $this->groupManager->createGroup('');
 
-        $this->eventDispatcher->dispatch(FOSUserEvents::GROUP_CREATE_INITIALIZE, new GroupEvent($group, $request));
+        $this->eventDispatcher->dispatch(new GroupEvent($group, $request), FOSUserEvents::GROUP_CREATE_INITIALIZE);
 
         $form = $this->formFactory->createForm();
         $form->setData($group);
@@ -134,16 +134,16 @@ class GroupController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $event = new FormEvent($form, $request);
-            $this->eventDispatcher->dispatch(FOSUserEvents::GROUP_CREATE_SUCCESS, $event);
+            $this->eventDispatcher->dispatch($event, FOSUserEvents::GROUP_CREATE_SUCCESS);
 
             $this->groupManager->updateGroup($group);
 
             if (null === $response = $event->getResponse()) {
-                $url = $this->generateUrl('fos_user_group_show', ['groupName' => $group->getName()]);
+                $url      = $this->generateUrl('fos_user_group_show', ['groupName' => $group->getName()]);
                 $response = new RedirectResponse($url);
             }
 
-            $this->eventDispatcher->dispatch(FOSUserEvents::GROUP_CREATE_COMPLETED, new FilterGroupResponseEvent($group, $request, $response));
+            $this->eventDispatcher->dispatch(new FilterGroupResponseEvent($group, $request, $response), FOSUserEvents::GROUP_CREATE_COMPLETED);
 
             return $response;
         }
@@ -167,7 +167,7 @@ class GroupController extends AbstractController
 
         $response = new RedirectResponse($this->generateUrl('fos_user_group_list'));
 
-        $this->eventDispatcher->dispatch(FOSUserEvents::GROUP_DELETE_COMPLETED, new FilterGroupResponseEvent($group, $request, $response));
+        $this->eventDispatcher->dispatch(new FilterGroupResponseEvent($group, $request, $response), FOSUserEvents::GROUP_DELETE_COMPLETED);
 
         return $response;
     }
@@ -178,14 +178,14 @@ class GroupController extends AbstractController
      * @param string $key   property name
      * @param mixed  $value property value
      *
+     * @return GroupInterface
      * @throws NotFoundHttpException if user does not exist
      *
-     * @return GroupInterface
      */
     protected function findGroupBy($key, $value)
     {
         if (!empty($value)) {
-            $group = $this->groupManager->{'findGroupBy'.ucfirst($key)}($value);
+            $group = $this->groupManager->{'findGroupBy' . ucfirst($key)}($value);
         }
 
         if (empty($group)) {

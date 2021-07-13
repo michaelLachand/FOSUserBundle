@@ -48,8 +48,8 @@ class AuthenticationListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            FOSUserEvents::REGISTRATION_COMPLETED => 'authenticate',
-            FOSUserEvents::REGISTRATION_CONFIRMED => 'authenticate',
+            FOSUserEvents::REGISTRATION_COMPLETED    => 'authenticate',
+            FOSUserEvents::REGISTRATION_CONFIRMED    => 'authenticate',
             FOSUserEvents::RESETTING_RESET_COMPLETED => 'authenticate',
         ];
     }
@@ -62,7 +62,7 @@ class AuthenticationListener implements EventSubscriberInterface
         try {
             $this->loginManager->logInUser($this->firewallName, $event->getUser(), $event->getResponse());
 
-            $eventDispatcher->dispatch(FOSUserEvents::SECURITY_IMPLICIT_LOGIN, new UserEvent($event->getUser(), $event->getRequest()));
+            $eventDispatcher->dispatch(new UserEvent($event->getUser(), $event->getRequest()), FOSUserEvents::SECURITY_IMPLICIT_LOGIN);
         } catch (AccountStatusException $ex) {
             // We simply do not authenticate users which do not pass the user
             // checker (not enabled, expired, etc.).

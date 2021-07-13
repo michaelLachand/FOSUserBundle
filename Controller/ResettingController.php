@@ -53,11 +53,11 @@ class ResettingController extends AbstractController
     public function __construct(EventDispatcherInterface $eventDispatcher, FactoryInterface $formFactory, UserManagerInterface $userManager, TokenGeneratorInterface $tokenGenerator, MailerInterface $mailer, $retryTtl)
     {
         $this->eventDispatcher = $eventDispatcher;
-        $this->formFactory = $formFactory;
-        $this->userManager = $userManager;
-        $this->tokenGenerator = $tokenGenerator;
-        $this->mailer = $mailer;
-        $this->retryTtl = $retryTtl;
+        $this->formFactory     = $formFactory;
+        $this->userManager     = $userManager;
+        $this->tokenGenerator  = $tokenGenerator;
+        $this->mailer          = $mailer;
+        $this->retryTtl        = $retryTtl;
     }
 
     /**
@@ -80,7 +80,7 @@ class ResettingController extends AbstractController
         $user = $this->userManager->findUserByUsernameOrEmail($username);
 
         $event = new GetResponseNullableUserEvent($user, $request);
-        $this->eventDispatcher->dispatch(FOSUserEvents::RESETTING_SEND_EMAIL_INITIALIZE, $event);
+        $this->eventDispatcher->dispatch($event, FOSUserEvents::RESETTING_SEND_EMAIL_INITIALIZE);
 
         if (null !== $event->getResponse()) {
             return $event->getResponse();
@@ -88,7 +88,7 @@ class ResettingController extends AbstractController
 
         if (null !== $user && !$user->isPasswordRequestNonExpired($this->retryTtl)) {
             $event = new GetResponseUserEvent($user, $request);
-            $this->eventDispatcher->dispatch(FOSUserEvents::RESETTING_RESET_REQUEST, $event);
+            $this->eventDispatcher->dispatch($event, FOSUserEvents::RESETTING_RESET_REQUEST);
 
             if (null !== $event->getResponse()) {
                 return $event->getResponse();
@@ -99,7 +99,7 @@ class ResettingController extends AbstractController
             }
 
             $event = new GetResponseUserEvent($user, $request);
-            $this->eventDispatcher->dispatch(FOSUserEvents::RESETTING_SEND_EMAIL_CONFIRM, $event);
+            $this->eventDispatcher->dispatch($event, FOSUserEvents::RESETTING_SEND_EMAIL_CONFIRM);
 
             if (null !== $event->getResponse()) {
                 return $event->getResponse();
@@ -110,7 +110,7 @@ class ResettingController extends AbstractController
             $this->userManager->updateUser($user);
 
             $event = new GetResponseUserEvent($user, $request);
-            $this->eventDispatcher->dispatch(FOSUserEvents::RESETTING_SEND_EMAIL_COMPLETED, $event);
+            $this->eventDispatcher->dispatch($event, FOSUserEvents::RESETTING_SEND_EMAIL_COMPLETED);
 
             if (null !== $event->getResponse()) {
                 return $event->getResponse();
@@ -155,7 +155,7 @@ class ResettingController extends AbstractController
         }
 
         $event = new GetResponseUserEvent($user, $request);
-        $this->eventDispatcher->dispatch(FOSUserEvents::RESETTING_RESET_INITIALIZE, $event);
+        $this->eventDispatcher->dispatch($event, FOSUserEvents::RESETTING_RESET_INITIALIZE);
 
         if (null !== $event->getResponse()) {
             return $event->getResponse();
@@ -168,18 +168,18 @@ class ResettingController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $event = new FormEvent($form, $request);
-            $this->eventDispatcher->dispatch(FOSUserEvents::RESETTING_RESET_SUCCESS, $event);
+            $this->eventDispatcher->dispatch($event, FOSUserEvents::RESETTING_RESET_SUCCESS);
 
             $this->userManager->updateUser($user);
 
             if (null === $response = $event->getResponse()) {
-                $url = $this->generateUrl('fos_user_profile_show');
+                $url      = $this->generateUrl('fos_user_profile_show');
                 $response = new RedirectResponse($url);
             }
 
             $this->eventDispatcher->dispatch(
-                FOSUserEvents::RESETTING_RESET_COMPLETED,
-                new FilterUserResponseEvent($user, $request, $response)
+                new FilterUserResponseEvent($user, $request, $response),
+                FOSUserEvents::RESETTING_RESET_COMPLETED
             );
 
             return $response;
@@ -187,7 +187,7 @@ class ResettingController extends AbstractController
 
         return $this->render('@FOSUser/Resetting/reset.html.twig', [
             'token' => $token,
-            'form' => $form->createView(),
+            'form'  => $form->createView(),
         ]);
     }
 }
