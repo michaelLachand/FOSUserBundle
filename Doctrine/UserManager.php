@@ -17,6 +17,7 @@ use FOS\UserBundle\Model\UserInterface;
 use FOS\UserBundle\Model\UserManager as BaseUserManager;
 use FOS\UserBundle\Util\CanonicalFieldsUpdater;
 use FOS\UserBundle\Util\PasswordUpdaterInterface;
+use Doctrine\Persistence\ObjectManager;
 
 class UserManager extends BaseUserManager
 {
@@ -35,7 +36,7 @@ class UserManager extends BaseUserManager
      *
      * @param string $class
      */
-    public function __construct(PasswordUpdaterInterface $passwordUpdater, CanonicalFieldsUpdater $canonicalFieldsUpdater, EntityManagerInterface $em, $class)
+    public function __construct(PasswordUpdaterInterface $passwordUpdater, CanonicalFieldsUpdater $canonicalFieldsUpdater, ObjectManager $em, $class)
     {
         parent::__construct($passwordUpdater, $canonicalFieldsUpdater);
 
