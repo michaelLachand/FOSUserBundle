@@ -13,7 +13,8 @@ namespace FOS\UserBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Flex\Recipe;
+//use Symfony\Flex\Recipe;
+
 
 /**
  * Checks to see if the mailer service exists.
