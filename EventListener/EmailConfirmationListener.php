@@ -11,6 +11,7 @@
 
 namespace FOS\UserBundle\EventListener;
 
+use Symfony\Component\HttpFoundation\RequestStack;
 use FOS\UserBundle\Event\FormEvent;
 use FOS\UserBundle\FOSUserEvents;
 use FOS\UserBundle\Mailer\MailerInterface;
@@ -25,17 +26,17 @@ class EmailConfirmationListener implements EventSubscriberInterface
     private $mailer;
     private $tokenGenerator;
     private $router;
-    private $session;
+    private $requestStack;
 
     /**
      * EmailConfirmationListener constructor.
      */
-    public function __construct(MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator, UrlGeneratorInterface $router, SessionInterface $session)
+    public function __construct(MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator, UrlGeneratorInterface $router, RequestStack $requestStack)
     {
         $this->mailer = $mailer;
         $this->tokenGenerator = $tokenGenerator;
         $this->router = $router;
-        $this->session = $session;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -60,7 +61,7 @@ class EmailConfirmationListener implements EventSubscriberInterface
 
         $this->mailer->sendConfirmationEmailMessage($user);
 
-        $this->session->set('fos_user_send_confirmation_email/email', $user->getEmail());
+        $this->requestStack->getSession()->set('fos_user_send_confirmation_email/email', $user->getEmail());
 
         $url = $this->router->generate('fos_user_registration_check_email');
         $event->setResponse(new RedirectResponse($url));

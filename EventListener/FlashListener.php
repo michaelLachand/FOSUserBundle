@@ -14,7 +14,7 @@ namespace FOS\UserBundle\EventListener;
 use FOS\UserBundle\FOSUserEvents;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FlashListener implements EventSubscriberInterface
@@ -33,11 +33,6 @@ class FlashListener implements EventSubscriberInterface
     ];
 
     /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
      * @var TranslatorInterface
      */
     private $translator;
@@ -45,9 +40,9 @@ class FlashListener implements EventSubscriberInterface
     /**
      * FlashListener constructor.
      */
-    public function __construct(SessionInterface $session, TranslatorInterface $translator)
+    public function __construct(RequestStack $requestStack, TranslatorInterface $translator)
     {
-        $this->session = $session;
+        $this->requestStack = $requestStack;
         $this->translator = $translator;
     }
 
@@ -76,7 +71,7 @@ class FlashListener implements EventSubscriberInterface
             throw new \InvalidArgumentException('This event does not correspond to a known flash message');
         }
 
-        $this->session->getFlashBag()->add('success', $this->trans(self::$successMessages[$eventName]));
+        $this->requestStack->getSession()->getFlashBag()->add('success', $this->trans(self::$successMessages[$eventName]));
     }
 
     /**
