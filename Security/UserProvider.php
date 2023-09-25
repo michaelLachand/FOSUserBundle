@@ -47,6 +47,11 @@ class UserProvider implements UserProviderInterface
         return $user;
     }
 
+    public function loadUserByIdentifier(string $identifier): SecurityUserInterface
+    {
+        return $this->loadUserByUsername($identifier);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -84,7 +89,7 @@ class UserProvider implements UserProviderInterface
      *
      * @param string $username
      *
-     * @return UserInterface|null
+     * @return UserInterface|SecurityUserInterface|null
      */
     protected function findUser($username)
     {
