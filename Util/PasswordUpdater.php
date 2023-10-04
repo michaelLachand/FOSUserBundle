@@ -12,8 +12,7 @@
 namespace FOS\UserBundle\Util;
 
 use FOS\UserBundle\Model\UserInterface;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
-use Symfony\Component\Security\Core\Encoder\SelfSaltingEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 /**
  * Class updating the hashed password in the user when there is a new password.
@@ -22,11 +21,11 @@ use Symfony\Component\Security\Core\Encoder\SelfSaltingEncoderInterface;
  */
 class PasswordUpdater implements PasswordUpdaterInterface
 {
-    private $encoderFactory;
+    private $passwordHasherFactory;
 
-    public function __construct(EncoderFactoryInterface $encoderFactory)
+    public function __construct(PasswordHasherFactoryInterface $passwordHasherFactory)
     {
-        $this->encoderFactory = $encoderFactory;
+        $this->passwordHasherFactory = $passwordHasherFactory;
     }
 
     public function hashPassword(UserInterface $user)
@@ -37,17 +36,9 @@ class PasswordUpdater implements PasswordUpdaterInterface
             return;
         }
 
-        $encoder = $this->encoderFactory->getEncoder($user);
+        $passwordHasher = $this->passwordHasherFactory->getPasswordHasher($user);
 
-        if ($encoder instanceof SelfSaltingEncoderInterface) {
-            $user->setSalt(null);
-        } else {
-            $salt = rtrim(str_replace('+', '.', base64_encode(random_bytes(32))), '=');
-            $user->setSalt($salt);
-        }
-
-        $hashedPassword = $encoder->encodePassword($plainPassword, $user->getSalt());
-        $user->setPassword($hashedPassword);
+        $user->setPassword($passwordHasher->hash($plainPassword));
         $user->eraseCredentials();
     }
 }
