@@ -11,12 +11,14 @@
 
 namespace FOS\UserBundle\EventListener;
 
+use AllowDynamicProperties;
 use FOS\UserBundle\FOSUserEvents;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[AllowDynamicProperties]
 class FlashListener implements EventSubscriberInterface
 {
     /**
